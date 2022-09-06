@@ -83,9 +83,9 @@ class CompetidorSchema(SQLAlchemyAutoSchema):
     cuota = fields.String()
 
 
-class CarreraSchema(SQLAlchemyAutoSchema):
+class EventoDeportivoSchema(SQLAlchemyAutoSchema):
     class Meta:
-        model = Carrera
+        model = EventoDeportivo
         include_relationships = True
         load_instance = True
 
