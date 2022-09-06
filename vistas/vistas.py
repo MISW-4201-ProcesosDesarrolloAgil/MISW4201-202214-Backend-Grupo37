@@ -1,67 +1,96 @@
+import email
+import re
 from flask import request
 from flask_jwt_extended import jwt_required, create_access_token
 from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
 
-from modelos import db, Apuesta, ApuestaSchema, Usuario, UsuarioSchema, Carrera, CarreraSchema, CompetidorSchema, \
-    Competidor, ReporteSchema
+from modelos.modelos2 import db, Apuesta, ApuestaSchema, Usuario, UsuarioSchema, CompetidorSchema, Competidor, ReporteSchema, EventoDeportivo, EventoDeportivoSchema
+
+#from modelos.modelos import Carrera, CarreraSchema, ReporteSchema
 
 apuesta_schema = ApuestaSchema()
-carrera_schema = CarreraSchema()
+#carrera_schema = CarreraSchema()
+eventod_schema = EventoDeportivoSchema()
 competidor_schema = CompetidorSchema()
 usuario_schema = UsuarioSchema()
 reporte_schema = ReporteSchema()
 
+class VistaUsuarios(Resource):
+    #@jwt_required
+    def get(self):
+        usuarios = Usuario.query.all()
+        return usuario_schema.dump(usuarios, many=True)
 
-class VistaSignIn(Resource):
+class VistaSignInAdmin(Resource):
 
     def post(self):
-        nuevo_usuario = Usuario(usuario=request.json["usuario"], contrasena=request.json["contrasena"])
+        #nuevo_usuario = Usuario(usuario=request.json["usuario"], contrasena=request.json["contrasena"])
+        nuevo_usuario = Usuario(usuario=request.json["usuario"], email=request.json["u_email"], 
+        contrasena=request.json["contrasena"], phone=request.json["phone"], rol=0, no_cuenta='', nombre_banco='', saldo='0.0', medio_pago='')
         db.session.add(nuevo_usuario)
         db.session.commit()
         token_de_acceso = create_access_token(identity=nuevo_usuario.id)
-        return {"mensaje": "usuario creado exitosamente", "token": token_de_acceso, "id": nuevo_usuario.id}
+        return {"mensaje": "usuario admin creado exitosamente", "token": token_de_acceso, "id": nuevo_usuario.id, "rol": nuevo_usuario.rol}
 
-    def put(self, id_usuario):
-        usuario = Usuario.query.get_or_404(id_usuario)
-        usuario.contrasena = request.json.get("contrasena", usuario.contrasena)
+class VistaSignInApostador(Resource):
+    
+    def post(self):
+        nuevo_usuario = Usuario(usuario=request.json["usuario"], email=request.json["u_email"], 
+        contrasena=request.json["contrasena"], rol=1, no_cuenta='', nombre_banco='', saldo=0.0, medio_pago='')
+        db.session.add(nuevo_usuario)
         db.session.commit()
-        return usuario_schema.dump(usuario)
-
-    def delete(self, id_usuario):
-        usuario = Usuario.query.get_or_404(id_usuario)
-        db.session.delete(usuario)
-        db.session.commit()
-        return '', 204
-
+        token_de_acceso = create_access_token(identity=nuevo_usuario.id)
+        return {"mensaje": "usuario apostador creado exitosamente", "token": token_de_acceso, "id": nuevo_usuario.id, "rol": nuevo_usuario.rol}
+    
 
 class VistaLogIn(Resource):
 
     def post(self):
         usuario = Usuario.query.filter(Usuario.usuario == request.json["usuario"],
-                                       Usuario.contrasena == request.json["contrasena"]).first()
+                                        Usuario.contrasena == request.json["contrasena"]).first()
         db.session.commit()
         if usuario is None:
             return "El usuario no existe", 404
         else:
             token_de_acceso = create_access_token(identity=usuario.id)
-            return {"mensaje": "Inicio de sesión exitoso", "token": token_de_acceso}
+            return {"mensaje": "Inicio de sesión exitoso", "token": token_de_acceso, "rol": usuario.rol}
+    def put(self):
+        usuario = Usuario.query.filter(Usuario.usuario == request.json["usuario"],
+                                        Usuario.id == request.json["id"],
+                                        Usuario.rol == request.json["rol"]).first()
+        if(usuario is None):
+            return "El usuario no existe", 404
+        usuario.contrasena = request.json.get("contrasena_new", usuario.contrasena)
+        db.session.commit()
+        return usuario_schema.dump(usuario)
+    
+    def delete(self):
+        ##usuario = Usuario.query.get_or_404(id_usuario)
+        usuario = Usuario.query.filter(Usuario.usuario == request.json["usuario"],
+                                        Usuario.id == request.json["id"],
+                                        Usuario.rol == request.json["rol"]).first()
+        if(usuario is None):
+            return "El usuario no existe", 404
+        db.session.delete(usuario)
+        db.session.commit()
+        return '', 204
 
 
-class VistaCarrerasUsuario(Resource):
+class VistaEventosUsuario(Resource):
 
     @jwt_required()
     def post(self, id_usuario):
-        nueva_carrera = Carrera(nombre_carrera=request.json["nombre"])
+        nuevo_eventod = EventoDeportivo(nombre_EventoDeportivo=request.json["nombre"])
         for item in request.json["competidores"]:
             cuota = round((item["probabilidad"] / (1 - item["probabilidad"])), 2)
             competidor = Competidor(nombre_competidor=item["competidor"],
                                     probabilidad=item["probabilidad"],
                                     cuota=cuota,
-                                    id_carrera=nueva_carrera.id)
-            nueva_carrera.competidores.append(competidor)
+                                    id_carrera=nuevo_eventod.id)
+            nuevo_eventod.competidores.append(competidor)
         usuario = Usuario.query.get_or_404(id_usuario)
-        usuario.carreras.append(nueva_carrera)
+        usuario.carreras.append(nuevo_eventod)
 
         try:
             db.session.commit()
@@ -69,25 +98,26 @@ class VistaCarrerasUsuario(Resource):
             db.session.rollback()
             return 'El usuario ya tiene un carrera con dicho nombre', 409
 
-        return carrera_schema.dump(nueva_carrera)
+        return eventod_schema.dump(nuevo_eventod)
 
     @jwt_required()
     def get(self, id_usuario):
         usuario = Usuario.query.get_or_404(id_usuario)
-        return [carrera_schema.dump(carrera) for carrera in usuario.carreras]
+        return [eventod_schema.dump(eventod) for eventod in usuario.EventoDeportivos]
 
 
-class VistaCarrera(Resource):
 
-    @jwt_required()
-    def get(self, id_carrera):
-        return carrera_schema.dump(Carrera.query.get_or_404(id_carrera))
+class VistaEventos(Resource):
 
     @jwt_required()
-    def put(self, id_carrera):
-        carrera = Carrera.query.get_or_404(id_carrera)
-        carrera.nombre_carrera = request.json.get("nombre", carrera.nombre_carrera)
-        carrera.competidores = []
+    def get(self, id_eventod):
+        return eventod_schema.dump(EventoDeportivo.query.get_or_404(id_eventod))
+
+    @jwt_required()
+    def put(self, id_eventod):
+        evento_deportivo = EventoDeportivo.query.get_or_404(id_eventod)
+        evento_deportivo.nombre_carrera = request.json.get("nombre", evento_deportivo.nombre_EventoDeportivo)
+        evento_deportivo.competidores = []
 
         for item in request.json["competidores"]:
             probabilidad = float(item["probabilidad"])
@@ -95,16 +125,16 @@ class VistaCarrera(Resource):
             competidor = Competidor(nombre_competidor=item["competidor"],
                                     probabilidad=probabilidad,
                                     cuota=cuota,
-                                    id_carrera=carrera.id)
-            carrera.competidores.append(competidor)
+                                    id_EventoDeportivo=evento_deportivo.id)
+            evento_deportivo.competidores.append(competidor)
 
         db.session.commit()
-        return carrera_schema.dump(carrera)
+        return eventod_schema.dump(evento_deportivo)
 
     @jwt_required()
-    def delete(self, id_carrera):
-        carrera = Carrera.query.get_or_404(id_carrera)
-        db.session.delete(carrera)
+    def delete(self, id_eventod):
+        eventod = EventoDeportivo.query.get_or_404(id_eventod)
+        db.session.delete(eventod)
         db.session.commit()
         return '', 204
 
@@ -149,15 +179,15 @@ class VistaApuesta(Resource):
         return '', 204
 
 
-class VistaTerminacionCarrera(Resource):
+class VistaTerminacionEventoD(Resource):
 
     def put(self, id_competidor):
         competidor = Competidor.query.get_or_404(id_competidor)
         competidor.es_ganador = True
-        carrera = Carrera.query.get_or_404(competidor.id_carrera)
-        carrera.abierta = False
+        eventod = EventoDeportivo.query.get_or_404(competidor.id_EventoDeportivo)
+        eventod.abierta = False
 
-        for apuesta in carrera.apuestas:
+        for apuesta in eventod.apuestas:
             if apuesta.id_competidor == competidor.id:
                 apuesta.ganancia = apuesta.valor_apostado + (apuesta.valor_apostado/competidor.cuota)
             else:
@@ -166,17 +196,16 @@ class VistaTerminacionCarrera(Resource):
         db.session.commit()
         return competidor_schema.dump(competidor)
 
-
 class VistaReporte(Resource):
 
     @jwt_required()
-    def get(self, id_carrera):
-        carreraReporte = Carrera.query.get_or_404(id_carrera)
+    def get(self, id_eventod):
+        EDReporte = EventoDeportivo.query.get_or_404(id_eventod)
         ganancia_casa_final = 0
 
-        for apuesta in carreraReporte.apuestas:
+        for apuesta in EDReporte.apuestas:
             ganancia_casa_final = ganancia_casa_final + apuesta.valor_apostado - apuesta.ganancia
 
-        reporte = dict(carrera=carreraReporte, ganancia_casa=ganancia_casa_final)
+        reporte = dict(carrera=EDReporte, ganancia_casa=ganancia_casa_final)
         schema = ReporteSchema()
         return schema.dump(reporte)
