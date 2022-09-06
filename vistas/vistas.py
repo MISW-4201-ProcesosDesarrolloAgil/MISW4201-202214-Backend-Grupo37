@@ -27,7 +27,7 @@ class VistaSignInAdmin(Resource):
     def post(self):
         #nuevo_usuario = Usuario(usuario=request.json["usuario"], contrasena=request.json["contrasena"])
         nuevo_usuario = Usuario(usuario=request.json["usuario"], email=request.json["u_email"], 
-        contrasena=request.json["contrasena"], phone=request.json["phone"], rol=0, no_cuenta='', nombre_banco='', saldo='0.0', medio_pago='')
+        contrasena = request.json["contrasena"], phone = request.json["phone"], rol=0, no_cuenta='', nombre_banco='', saldo='0.0', medio_pago='')
         db.session.add(nuevo_usuario)
         db.session.commit()
         token_de_acceso = create_access_token(identity=nuevo_usuario.id)
@@ -37,7 +37,7 @@ class VistaSignInApostador(Resource):
     
     def post(self):
         nuevo_usuario = Usuario(usuario=request.json["usuario"], email=request.json["u_email"], 
-        contrasena=request.json["contrasena"], rol=1, no_cuenta='', nombre_banco='', saldo=0.0, medio_pago='')
+        contrasena=request.json["contrasena"], phone = request.json["phone"], rol=1, no_cuenta='', nombre_banco='', saldo=0.0, medio_pago='')
         db.session.add(nuevo_usuario)
         db.session.commit()
         token_de_acceso = create_access_token(identity=nuevo_usuario.id)
