@@ -71,6 +71,7 @@ class CarreraSchema(SQLAlchemyAutoSchema):
     ganancia_casa = fields.Float()
 
 
+
 class UsuarioSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = Usuario
