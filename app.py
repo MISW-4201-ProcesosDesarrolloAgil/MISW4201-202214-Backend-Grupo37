@@ -32,3 +32,4 @@ api.add_resource(VistaTerminacionCarrera, '/carrera/<int:id_competidor>/terminac
 api.add_resource(VistaReporte, '/carrera/<int:id_carrera>/reporte')
 
 jwt = JWTManager(app)
+
