@@ -1,6 +1,9 @@
 import email
 import re
 from flask import request
+
+import numpy as np
+
 from flask_jwt_extended import jwt_required, create_access_token
 from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
@@ -207,12 +210,13 @@ class VistaCompetidores(Resource):
     @jwt_required()
     def get(self):
         competidores = Competidor.query.all()
-        return competidor_schema.dump(competidores)
+        return competidor_schema.dump(competidores, many=True)
 
 class FinalizarEvento(Resource):
 
-    @jwt_required
+    #@jwt_required
     def put(self, id_eventod):
+        print('hola ' + id_eventod)
         eventoDeportivo = EventoDeportivo.query.get_or_404(id_eventod)
         eventoDeportivo.estado = False
         db.session.commit()
@@ -220,7 +224,9 @@ class FinalizarEvento(Resource):
 
 class VistaEventosDisponibles(Resource):
     
-    @jwt_required
+    #@jwt_required
     def get(self):
         eventosDeportivos = EventoDeportivo.query.filter(EventoDeportivo.estado == True).all()
-        return EventoDeportivoSchema.dump(eventosDeportivos)
+        if(eventosDeportivos is None or np.size(eventosDeportivos) > 0 ):
+            return "No hay eventos Disponibles", 404
+        return eventod_schema.dump(eventosDeportivos, many=True)
