@@ -145,3 +145,5 @@ cython_debug/
 
 #DataBase
 test.db
+angular.json
+package.json

@@ -7,10 +7,9 @@ from sqlalchemy.exc import IntegrityError
 
 from modelos.modelos2 import db, Apuesta, ApuestaSchema, Usuario, UsuarioSchema, CompetidorSchema, Competidor, ReporteSchema, EventoDeportivo, EventoDeportivoSchema
 
-#from modelos.modelos import Carrera, CarreraSchema, ReporteSchema
+
 
 apuesta_schema = ApuestaSchema()
-#carrera_schema = CarreraSchema()
 eventod_schema = EventoDeportivoSchema()
 competidor_schema = CompetidorSchema()
 usuario_schema = UsuarioSchema()
@@ -26,7 +25,6 @@ class VistaUsuarios(Resource):
 class VistaSignInAdmin(Resource):
 
     def post(self):
-        #nuevo_usuario = Usuario(usuario=request.json["usuario"], contrasena=request.json["contrasena"])
         nuevo_usuario = Usuario(usuario=request.json["usuario"], email=request.json["u_email"], 
         contrasena = request.json["contrasena"], phone = request.json["phone"], rol=0, no_cuenta='', nombre_banco='', saldo='0.0', medio_pago='')
         db.session.add(nuevo_usuario)
@@ -43,7 +41,6 @@ class VistaSignInApostador(Resource):
         db.session.commit()
         token_de_acceso = create_access_token(identity=nuevo_usuario.id)
         return {"mensaje": "usuario apostador creado exitosamente", "token": token_de_acceso, "id": nuevo_usuario.id, "rol": nuevo_usuario.rol}
-    
 
 class VistaLogIn(Resource):
 
@@ -77,7 +74,6 @@ class VistaLogIn(Resource):
         db.session.commit()
         return '', 204
 
-
 class VistaEventosUsuario(Resource):
 
     @jwt_required()
@@ -105,8 +101,6 @@ class VistaEventosUsuario(Resource):
     def get(self, id_usuario):
         usuario = Usuario.query.get_or_404(id_usuario)
         return [eventod_schema.dump(eventod) for eventod in usuario.EventoDeportivos]
-
-
 
 class VistaEventos(Resource):
 
@@ -139,7 +133,6 @@ class VistaEventos(Resource):
         db.session.commit()
         return '', 204
 
-
 class VistaApuestas(Resource):
 
     @jwt_required()
@@ -154,7 +147,6 @@ class VistaApuestas(Resource):
     @jwt_required()
     def get(self):
         return [apuesta_schema.dump(ca) for ca in Apuesta.query.all()]
-
 
 class VistaApuesta(Resource):
 
@@ -179,8 +171,7 @@ class VistaApuesta(Resource):
         db.session.commit()
         return '', 204
 
-
-class VistaTerminacionEventoD(Resource):
+class VistaTerminacionEventoConGanador(Resource):
 
     def put(self, id_competidor):
         competidor = Competidor.query.get_or_404(id_competidor)
@@ -218,3 +209,18 @@ class VistaCompetidores(Resource):
         competidores = Competidor.query.all()
         return competidor_schema.dump(competidores)
 
+class FinalizarEvento(Resource):
+
+    @jwt_required
+    def put(self, id_eventod):
+        eventoDeportivo = EventoDeportivo.query.get_or_404(id_eventod)
+        eventoDeportivo.estado = False
+        db.session.commit()
+        return eventod_schema.dump(eventoDeportivo)
+
+class VistaEventosDisponibles(Resource):
+    
+    @jwt_required
+    def get(self):
+        eventosDeportivos = EventoDeportivo.query.filter(EventoDeportivo.estado == True).aLL()
+        return EventoDeportivoSchema.dump(eventosDeportivos)

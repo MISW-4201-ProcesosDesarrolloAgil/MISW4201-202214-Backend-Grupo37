@@ -103,6 +103,7 @@ class EventoDeportivoSchema(SQLAlchemyAutoSchema):
         model = EventoDeportivo
         include_relationships = True
         load_instance = True
+        many = True
 
     competidores = fields.List(fields.Nested(CompetidorSchema()))
     apuestas = fields.List(fields.Nested(ApuestaSchema()))

@@ -4,8 +4,8 @@ from flask_jwt_extended import JWTManager
 from flask_restful import Api
 
 from modelos.modelos2 import db
-from vistas import VistaApuestas, VistaApuesta, VistaLogIn, VistaEventosUsuario, VistaEventos, VistaTerminacionEventoD, VistaReporte, \
-    VistaSignInApostador, VistaSignInAdmin, VistaUsuarios, VistaCompetidores
+from vistas import VistaApuestas, VistaApuesta, VistaLogIn, VistaEventosUsuario, VistaEventos, VistaTerminacionEventoConGanador, VistaReporte, \
+    VistaSignInApostador, VistaSignInAdmin, VistaUsuarios, VistaCompetidores, FinalizarEvento, VistaEventosDisponibles
 #, VistaCarrerasUsuario, VistaCarrera, VistaTerminacionCarrera, VistaReporte
 
 app = Flask(__name__)
@@ -33,12 +33,14 @@ api.add_resource(VistaEventos, '/eventod/<int:id_eventod>')
 api.add_resource(VistaApuestas, '/apuestas')
 api.add_resource(VistaApuesta, '/apuesta/<int:id_apuesta>')
 #api.add_resource(VistaTerminacionCarrera, '/carrera/<int:id_competidor>/terminacion')
-api.add_resource(VistaTerminacionEventoD, '/eventod/<int:id_competidor>/terminacion')
+api.add_resource(VistaTerminacionEventoConGanador, '/eventod/<int:id_competidor>/terminacion')
 #api.add_resource(VistaReporte, '/carrera/<int:id_carrera>/reporte')
 api.add_resource(VistaReporte, '/eventod/<int:id_eventod>/reporte')
 api.add_resource(VistaUsuarios, '/usuarios')
 
 api.add_resource(VistaCompetidores, '/competidores')
+api.add_resource(FinalizarEvento, '/finalizarEventoDeportivo')
+api.add_resource(VistaEventosDisponibles, '/eventod/eventosdisponibles')
 
 jwt = JWTManager(app)
 
