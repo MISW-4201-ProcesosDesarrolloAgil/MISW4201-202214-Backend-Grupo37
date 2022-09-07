@@ -16,6 +16,7 @@ competidor_schema = CompetidorSchema()
 usuario_schema = UsuarioSchema()
 reporte_schema = ReporteSchema()
 
+
 class VistaUsuarios(Resource):
     #@jwt_required
     def get(self):
@@ -209,3 +210,11 @@ class VistaReporte(Resource):
         reporte = dict(carrera=EDReporte, ganancia_casa=ganancia_casa_final)
         schema = ReporteSchema()
         return schema.dump(reporte)
+
+class VistaCompetidores(Resource):
+    
+    @jwt_required()
+    def get(self):
+        competidores = Competidor.query.all()
+        return competidor_schema.dump(competidores)
+
