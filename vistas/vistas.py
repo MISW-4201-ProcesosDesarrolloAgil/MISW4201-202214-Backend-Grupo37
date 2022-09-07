@@ -16,6 +16,7 @@ competidor_schema = CompetidorSchema()
 usuario_schema = UsuarioSchema()
 reporte_schema = ReporteSchema()
 
+
 class VistaUsuarios(Resource):
     #@jwt_required
     def get(self):
@@ -27,7 +28,7 @@ class VistaSignInAdmin(Resource):
     def post(self):
         #nuevo_usuario = Usuario(usuario=request.json["usuario"], contrasena=request.json["contrasena"])
         nuevo_usuario = Usuario(usuario=request.json["usuario"], email=request.json["u_email"], 
-        contrasena=request.json["contrasena"], phone=request.json["phone"], rol=0, no_cuenta='', nombre_banco='', saldo='0.0', medio_pago='')
+        contrasena = request.json["contrasena"], phone = request.json["phone"], rol=0, no_cuenta='', nombre_banco='', saldo='0.0', medio_pago='')
         db.session.add(nuevo_usuario)
         db.session.commit()
         token_de_acceso = create_access_token(identity=nuevo_usuario.id)
@@ -37,7 +38,7 @@ class VistaSignInApostador(Resource):
     
     def post(self):
         nuevo_usuario = Usuario(usuario=request.json["usuario"], email=request.json["u_email"], 
-        contrasena=request.json["contrasena"], rol=1, no_cuenta='', nombre_banco='', saldo=0.0, medio_pago='')
+        contrasena=request.json["contrasena"], phone = request.json["phone"], rol=1, no_cuenta='', nombre_banco='', saldo=0.0, medio_pago='')
         db.session.add(nuevo_usuario)
         db.session.commit()
         token_de_acceso = create_access_token(identity=nuevo_usuario.id)
@@ -209,3 +210,11 @@ class VistaReporte(Resource):
         reporte = dict(carrera=EDReporte, ganancia_casa=ganancia_casa_final)
         schema = ReporteSchema()
         return schema.dump(reporte)
+
+class VistaCompetidores(Resource):
+    
+    @jwt_required()
+    def get(self):
+        competidores = Competidor.query.all()
+        return competidor_schema.dump(competidores)
+
