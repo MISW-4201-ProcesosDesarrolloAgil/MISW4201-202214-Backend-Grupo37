@@ -207,7 +207,7 @@ class VistaReporte(Resource):
 
 class VistaCompetidores(Resource):
     
-    @jwt_required()
+    #@jwt_required()
     def get(self):
         competidores = Competidor.query.all()
         return competidor_schema.dump(competidores, many=True)
