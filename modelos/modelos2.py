@@ -20,9 +20,9 @@ class Competidor(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     nombre_competidor = db.Column(db.String(128))
-    probabilidad = db.Column(db.Numeric)
-    puntaje = db.Column(db.Numeric)
-    cuota = db.Column(db.Numeric);
+    probabilidad = db.Column(db.String(100))
+    puntaje = db.Column(db.String(100))
+    cuota = db.Column(db.String(100))
     es_ganador = db.Column(db.Boolean, default=False)
     estatus = db.Column(db.Boolean, default=False)
     id_EventoDeportivo = db.Column(db.Integer, db.ForeignKey('evento_deportivo.id'))
