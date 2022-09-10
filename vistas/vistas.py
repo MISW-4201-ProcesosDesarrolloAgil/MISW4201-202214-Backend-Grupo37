@@ -226,7 +226,7 @@ class VistaEventosDisponibles(Resource):
     
     #@jwt_required
     def get(self):
-        eventosDeportivos = EventoDeportivo.query.filter(EventoDeportivo.estado == True).all()
-        if(eventosDeportivos is None or np.size(eventosDeportivos) > 0 ):
-            return "No hay eventos Disponibles", 404
+        eventosDeportivos = EventoDeportivo.query.all()
+        #if(eventosDeportivos is None or np.size(eventosDeportivos) > 0 ):
+        #    return "No hay eventos Disponibles", 404
         return eventod_schema.dump(eventosDeportivos, many=True)
