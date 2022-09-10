@@ -232,6 +232,7 @@ class VistaEventosDisponibles(Resource):
         eventosD = []
         for evento in eventosDeportivos:
             if(evento.estado is True):
+                
                 eventosD.append(evento)
        # return eventod_schema.dump(eventosDeportivos, many=True)
         return eventod_schema.dump(eventosD)
