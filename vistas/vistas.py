@@ -1,9 +1,6 @@
 import email
 import re
 from flask import request
-
-import numpy as np
-
 from flask_jwt_extended import jwt_required, create_access_token
 from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
@@ -28,8 +25,15 @@ class VistaUsuarios(Resource):
 class VistaSignInAdmin(Resource):
 
     def post(self):
-        nuevo_usuario = Usuario(usuario=request.json["usuario"], email=request.json["u_email"], 
-        contrasena = request.json["contrasena"], phone = request.json["phone"], rol=0, no_cuenta='', nombre_banco='', saldo='0.0', medio_pago='')
+        nuevo_usuario = Usuario(usuario=request.json["usuario"], 
+                                email=request.json["u_email"], 
+                                contrasena = request.json["contrasena"], 
+                                phone = request.json["phone"], 
+                                rol=0, 
+                                no_cuenta='', 
+                                nombre_banco='', 
+                                saldo='0.0',
+                                 medio_pago='')
         db.session.add(nuevo_usuario)
         db.session.commit()
         token_de_acceso = create_access_token(identity=nuevo_usuario.id)
@@ -38,8 +42,15 @@ class VistaSignInAdmin(Resource):
 class VistaSignInApostador(Resource):
     
     def post(self):
-        nuevo_usuario = Usuario(usuario=request.json["usuario"], email=request.json["u_email"], 
-        contrasena=request.json["contrasena"], phone = request.json["phone"], rol=1, no_cuenta='', nombre_banco='', saldo=0.0, medio_pago='')
+        nuevo_usuario = Usuario(usuario=request.json["usuario"], 
+                                email=request.json["u_email"], 
+                                contrasena=request.json["contrasena"], 
+                                phone = request.json["phone"],
+                                rol=1, 
+                                no_cuenta='', 
+                                nombre_banco='', 
+                                saldo=0.0, 
+                                medio_pago='')
         db.session.add(nuevo_usuario)
         db.session.commit()
         token_de_acceso = create_access_token(identity=nuevo_usuario.id)
@@ -79,7 +90,7 @@ class VistaLogIn(Resource):
 
 class VistaEventosUsuario(Resource):
 
-    @jwt_required()
+    #@jwt_required()
     def post(self, id_usuario):
         nuevo_eventod = EventoDeportivo(nombre_EventoDeportivo=request.json["nombre"])
         for item in request.json["competidores"]:
@@ -100,7 +111,7 @@ class VistaEventosUsuario(Resource):
 
         return eventod_schema.dump(nuevo_eventod)
 
-    @jwt_required()
+    #@jwt_required()
     def get(self, id_usuario):
         usuario = Usuario.query.get_or_404(id_usuario)
         return [eventod_schema.dump(eventod) for eventod in usuario.EventoDeportivos]
@@ -180,7 +191,7 @@ class VistaTerminacionEventoConGanador(Resource):
         competidor = Competidor.query.get_or_404(id_competidor)
         competidor.es_ganador = True
         eventod = EventoDeportivo.query.get_or_404(competidor.id_EventoDeportivo)
-        eventod.abierta = False
+        eventod.status = "False"
 
         for apuesta in eventod.apuestas:
             if apuesta.id_competidor == competidor.id:
@@ -213,12 +224,11 @@ class VistaCompetidores(Resource):
         return competidor_schema.dump(competidores, many=True)
 
 class FinalizarEvento(Resource):
-
+#TODO: se necesita arreglar este problema que el put el envia paraemtro de entrada
     #@jwt_required
     def put(self, id_eventod):
-        print('hola ' + id_eventod)
         eventoDeportivo = EventoDeportivo.query.get_or_404(id_eventod)
-        eventoDeportivo.estado = False
+        eventoDeportivo.estado = 'False'
         db.session.commit()
         return eventod_schema.dump(eventoDeportivo)
 
@@ -226,7 +236,5 @@ class VistaEventosDisponibles(Resource):
     
     #@jwt_required
     def get(self):
-        eventosDeportivos = EventoDeportivo.query.all()
-        #if(eventosDeportivos is None or np.size(eventosDeportivos) > 0 ):
-        #    return "No hay eventos Disponibles", 404
+        eventosDeportivos = EventoDeportivo.query.filter(EventoDeportivo.status == 'True').all()
         return eventod_schema.dump(eventosDeportivos, many=True)

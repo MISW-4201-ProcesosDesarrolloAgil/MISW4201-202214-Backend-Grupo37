@@ -48,7 +48,7 @@ class EventoDeportivo(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     nombre_EventoDeportivo = db.Column(db.String(128))
-    estado = db.Column(db.Boolean, default=True)
+    status = db.Column(db.String(128))
     usuario = db.Column(db.Integer, db.ForeignKey("usuario.id"))
     competidores = db.relationship('Competidor', cascade='all, delete, delete-orphan')
     apuestas = db.relationship('Apuesta', cascade='all, delete, delete-orphan')    
@@ -75,8 +75,6 @@ class Marcador(db.Model):
     id_competidor_ganador = db.Column(db.Integer, db.ForeignKey('competidor.id'))
     id_competidor_perdedor  = db.Column(db.Integer, db.ForeignKey('competidor.id'))
 
-
-
 class ApuestaSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = Apuesta
@@ -86,8 +84,6 @@ class ApuestaSchema(SQLAlchemyAutoSchema):
 
     valor_apostado = fields.String()
     ganancia = fields.String()
-
-
 class CompetidorSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = Competidor
@@ -96,7 +92,6 @@ class CompetidorSchema(SQLAlchemyAutoSchema):
 
     probabilidad = fields.String()
     cuota = fields.String()
-
 
 class EventoDeportivoSchema(SQLAlchemyAutoSchema):
     class Meta:
@@ -109,13 +104,11 @@ class EventoDeportivoSchema(SQLAlchemyAutoSchema):
     apuestas = fields.List(fields.Nested(ApuestaSchema()))
     ganancia_casa = fields.Float()
 
-
 class UsuarioSchema(SQLAlchemyAutoSchema):
     class Meta:
         model = Usuario
         include_relationships = True
         load_instance = True
-
 
 class ReporteSchema(Schema):
     carrera = fields.Nested(EventoDeportivoSchema())
