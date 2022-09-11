@@ -237,4 +237,5 @@ class VistaEventosDisponibles(Resource):
     #@jwt_required
     def get(self):
         eventosDeportivos = EventoDeportivo.query.filter(EventoDeportivo.status == 'True').all()
+        print(eventosDeportivos)
         return eventod_schema.dump(eventosDeportivos, many=True)

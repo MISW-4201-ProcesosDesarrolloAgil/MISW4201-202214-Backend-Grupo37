@@ -31,13 +31,13 @@ api.add_resource(VistaUsuarios, '/usuarios')
 api.add_resource(VistaEventos, '/eventod/<int:id_eventod>')
 api.add_resource(FinalizarEvento, '/eventod/finalizareventodeportivo/<int:id_eventod>')
 api.add_resource(VistaReporte, '/eventod/<int:id_eventod>/reporte')
-#api.add_resource(VistaEventosDisponibles, '/eventod/eventosdisponibles')
+api.add_resource(VistaEventosDisponibles, '/eventod/eventosdisponibles')
 api.add_resource(VistaTerminacionEventoConGanador, '/eventod/terminarevento/<int:id_competidor>/terminacion')
 api.add_resource(VistaApuestas, '/apuestas')
 api.add_resource(VistaApuesta, '/apuesta/<int:id_apuesta>')
 api.add_resource(VistaCompetidores, '/competidores')
 
-api.add_resource(VistaEventosDisponibles, '/eventod')
+#api.add_resource(VistaEventosDisponibles, '/eventod')
 
 jwt = JWTManager(app)
 
