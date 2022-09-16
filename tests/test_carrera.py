@@ -7,7 +7,7 @@ from faker.generator import random
 from app import app
 
 
-class TestCarrera(TestCase):
+'''class TestCarrera(TestCase):
 
     def setUp(self):
         self.data_factory = Faker()
@@ -212,3 +212,4 @@ class TestCarrera(TestCase):
         self.assertLess(total_carreras_despues, total_carreras_antes)
         self.assertEqual(solicitud_consultar_carrera_por_id.status_code, 404)
         self.assertEqual(solicitud_eliminar_carrera.status_code, 204)
+'''
