@@ -5,7 +5,7 @@ from flask_restful import Api
 
 from modelos.modelos2 import db
 from vistas import VistaApuestas, VistaApuesta, VistaLogIn, VistaEventosUsuario, VistaEventos, VistaTerminacionEventoConGanador, VistaReporte, \
-    VistaSignInApostador, VistaSignInAdmin, VistaUsuarios, VistaCompetidores, FinalizarEvento, VistaEventosDisponibles
+    VistaSignInApostador, VistaSignInAdmin, VistaUsuarios, VistaCompetidores, FinalizarEvento, VistaEventosDisponibles, VistaEventoTipo
 #, VistaCarrerasUsuario, VistaCarrera, VistaTerminacionCarrera, VistaReporte
 
 app = Flask(__name__)
