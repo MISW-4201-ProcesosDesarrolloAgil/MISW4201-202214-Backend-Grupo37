@@ -180,11 +180,11 @@ class VistaEventoTipo(Resource):
 
 class VistaEventos(Resource):
 
-    @jwt_required()
+    #@jwt_required()
     def get(self, id_eventod):
         return eventod_schema.dump(EventoDeportivo.query.get_or_404(id_eventod))
 
-    @jwt_required()
+    #@jwt_required()
     def put(self, id_eventod):
         evento_deportivo = EventoDeportivo.query.get_or_404(id_eventod)
         evento_deportivo.nombre_carrera = request.json.get("nombre", evento_deportivo.nombre_EventoDeportivo)
@@ -285,8 +285,7 @@ class VistaCompetidores(Resource):
         competidores = Competidor.query.all()
         return competidor_schema.dump(competidores, many=True)
 
-class FinalizarEvento(Resource):
-#TODO: se necesita arreglar este problema que el put el envia paraemtro de entrada
+class VistaFinalizarEvento(Resource):
     #@jwt_required
     def put(self, id_eventod):
         eventoDeportivo = EventoDeportivo.query.get_or_404(id_eventod)
@@ -299,5 +298,4 @@ class VistaEventosDisponibles(Resource):
     #@jwt_required()
     def get(self):
         eventosDeportivos = EventoDeportivo.query.filter(EventoDeportivo.status == 'True').all()
-        #print(eventosDeportivos)
         return eventod_schema.dump(eventosDeportivos, many=True)
