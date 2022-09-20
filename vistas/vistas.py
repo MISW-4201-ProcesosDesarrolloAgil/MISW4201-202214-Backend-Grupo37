@@ -5,7 +5,8 @@ from flask_jwt_extended import jwt_required, create_access_token
 from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
 
-from modelos.modelos2 import db, Apuesta, ApuestaSchema, Usuario, UsuarioSchema, CompetidorSchema, Competidor, ReporteSchema, EventoDeportivo, EventoDeportivoSchema
+from modelos.modelos2 import db, Apuesta, ApuestaSchema, Usuario, UsuarioSchema, CompetidorSchema, Competidor, ReporteSchema, \
+EventoDeportivo, EventoDeportivoSchema, EventoCarrera, EventoMarcador, Marcador, EventoCarreraSchema, EventoMarcadorSchema, MarcadorSchema    
 
 
 
@@ -14,6 +15,10 @@ eventod_schema = EventoDeportivoSchema()
 competidor_schema = CompetidorSchema()
 usuario_schema = UsuarioSchema()
 reporte_schema = ReporteSchema()
+evento_carrera_schema = EventoCarreraSchema()
+evento_marcador_schema = EventoMarcadorSchema()
+marcador_schema = MarcadorSchema()
+
 
 
 class VistaUsuarios(Resource):
@@ -33,7 +38,7 @@ class VistaSignInAdmin(Resource):
                                 no_cuenta='', 
                                 nombre_banco='', 
                                 saldo='0.0',
-                                 medio_pago='')
+                                medio_pago='')
         db.session.add(nuevo_usuario)
         db.session.commit()
         token_de_acceso = create_access_token(identity=nuevo_usuario.id)
@@ -90,39 +95,96 @@ class VistaLogIn(Resource):
 
 class VistaEventosUsuario(Resource):
 
-    #@jwt_required()
+    @jwt_required()
     def post(self, id_usuario):
-        nuevo_eventod = EventoDeportivo(nombre_EventoDeportivo=request.json["nombre"])
-        for item in request.json["competidores"]:
-            cuota = round((item["probabilidad"] / (1 - item["probabilidad"])), 2)
-            competidor = Competidor(nombre_competidor=item["competidor"],
-                                    probabilidad=item["probabilidad"],
-                                    cuota=cuota,
-                                    id_carrera=nuevo_eventod.id)
-            nuevo_eventod.competidores.append(competidor)
-        usuario = Usuario.query.get_or_404(id_usuario)
-        usuario.carreras.append(nuevo_eventod)
-
+        #print(request.json)
         try:
-            db.session.commit()
-        except IntegrityError:
-            db.session.rollback()
-            return 'El usuario ya tiene un carrera con dicho nombre', 409
+            tipo = request.json["tipo"]
 
-        return eventod_schema.dump(nuevo_eventod)
+            if tipo == "carrera":
+                evento = EventoCarrera(
+                    nombre_EventoDeportivo=request.json["nombre"],
+                    competidores=[],
+                    apuestas=[],
+                    status="True",
+                    tipo="carrera",
+                    usuario=id_usuario
+                )
+            elif tipo == "marcador":
+                evento = EventoMarcador(
+                    nombre_EventoDeportivo=request.json["nombre"],
+                    competidores=[],
+                    apuestas=[],
+                    status="True",
+                    tipo="marcador",
+                    usuario=id_usuario
+                )
 
-    #@jwt_required()
+            if(evento is None):
+                return "El evento no se pudo crear", 404
+            else:
+                for item in request.json["competidores"]:
+                    prob = float(item["probabilidad"])
+                    cuota = str(round((prob / (1 - prob)), 2))
+                    competidor = Competidor(nombre_competidor=item["competidor"],
+                                        probabilidad=item["probabilidad"],
+                                        cuota=cuota,
+                                        estatus=True,
+                                        id_EventoDeportivo=evento.id)
+                    #print('{} {} {}'.format(item["competidor"], prob, cuota))
+                    evento.competidores.append(competidor)
+                
+                usuario = Usuario.query.get_or_404(id_usuario)
+                usuario.EventoDeportivos.append(evento)
+
+                #print(eventod_schema.dump(evento))
+
+            try:
+                db.session.add(evento)
+                db.session.commit()
+                if(tipo == "carrera"):
+                    return evento_carrera_schema.dump(evento)
+                elif(tipo == "marcador"):
+                    return evento_marcador_schema.dump(evento)
+                else:
+                    if(evento is None):
+                        return "El evento no se pudo crear", 404
+                    else:
+                        return eventod_schema.dump(evento)
+            except IntegrityError as e:
+                db.session.rollback()
+                print(e)
+                return 'El usuario ya tiene un carrera con dicho nombre', 409
+        
+        except Exception as e:
+            print(e)
+            return "Error al crear el evento", 404
+
+    @jwt_required()
     def get(self, id_usuario):
         usuario = Usuario.query.get_or_404(id_usuario)
         return [eventod_schema.dump(eventod) for eventod in usuario.EventoDeportivos]
 
+class VistaEventoTipo(Resource):
+    @jwt_required()
+    def get(self, id_eventod):
+        eventod = EventoCarrera.query.getall().filter(EventoCarrera.id == id_eventod)
+        if(eventod is None):
+            eventod = EventoMarcador.query.getall().filter(EventoMarcador.id == id_eventod)
+            if(eventod is None):
+                return "El evento no existe", 404
+            else:
+                return "marcador", 200
+        else:
+            return "carrera", 200
+
 class VistaEventos(Resource):
 
-    @jwt_required()
+    #@jwt_required()
     def get(self, id_eventod):
         return eventod_schema.dump(EventoDeportivo.query.get_or_404(id_eventod))
 
-    @jwt_required()
+    #@jwt_required()
     def put(self, id_eventod):
         evento_deportivo = EventoDeportivo.query.get_or_404(id_eventod)
         evento_deportivo.nombre_carrera = request.json.get("nombre", evento_deportivo.nombre_EventoDeportivo)
@@ -223,19 +285,18 @@ class VistaCompetidores(Resource):
         competidores = Competidor.query.all()
         return competidor_schema.dump(competidores, many=True)
 
-class FinalizarEvento(Resource):
-#TODO: se necesita arreglar este problema que el put el envia paraemtro de entrada
+class VistaFinalizarEvento(Resource):
     #@jwt_required
     def put(self, id_eventod):
         eventoDeportivo = EventoDeportivo.query.get_or_404(id_eventod)
-        eventoDeportivo.estado = 'False'
+        eventoDeportivo.status = 'False'
         db.session.commit()
         return eventod_schema.dump(eventoDeportivo)
 
 class VistaEventosDisponibles(Resource):
     
-    #@jwt_required
+    #@jwt_required()
     def get(self):
         eventosDeportivos = EventoDeportivo.query.filter(EventoDeportivo.status == 'True').all()
-        print(eventosDeportivos)
         return eventod_schema.dump(eventosDeportivos, many=True)
+
