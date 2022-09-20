@@ -95,7 +95,7 @@ class VistaLogIn(Resource):
 
 class VistaEventosUsuario(Resource):
 
-    @jwt_required()
+    #@jwt_required()
     def post(self, id_usuario):
         #print(request.json)
         try:
@@ -160,13 +160,13 @@ class VistaEventosUsuario(Resource):
             print(e)
             return "Error al crear el evento", 404
 
-    @jwt_required()
+    #@jwt_required()
     def get(self, id_usuario):
         usuario = Usuario.query.get_or_404(id_usuario)
         return [eventod_schema.dump(eventod) for eventod in usuario.EventoDeportivos]
 
 class VistaEventoTipo(Resource):
-    @jwt_required()
+    #@jwt_required()
     def get(self, id_eventod):
         eventod = EventoCarrera.query.getall().filter(EventoCarrera.id == id_eventod)
         if(eventod is None):
@@ -180,11 +180,11 @@ class VistaEventoTipo(Resource):
 
 class VistaEventos(Resource):
 
-    #@jwt_required()
+    ##@jwt_required()
     def get(self, id_eventod):
         return eventod_schema.dump(EventoDeportivo.query.get_or_404(id_eventod))
 
-    #@jwt_required()
+    ##@jwt_required()
     def put(self, id_eventod):
         evento_deportivo = EventoDeportivo.query.get_or_404(id_eventod)
         evento_deportivo.nombre_carrera = request.json.get("nombre", evento_deportivo.nombre_EventoDeportivo)
@@ -202,7 +202,7 @@ class VistaEventos(Resource):
         db.session.commit()
         return eventod_schema.dump(evento_deportivo)
 
-    @jwt_required()
+    #@jwt_required()
     def delete(self, id_eventod):
         eventod = EventoDeportivo.query.get_or_404(id_eventod)
         db.session.delete(eventod)
@@ -211,7 +211,7 @@ class VistaEventos(Resource):
 
 class VistaApuestas(Resource):
 
-    @jwt_required()
+    ##@jwt_required()
     def post(self):
         nueva_apuesta = Apuesta(valor_apostado=request.json["valor_apostado"],
                                 nombre_apostador=request.json["nombre_apostador"],
@@ -220,17 +220,17 @@ class VistaApuestas(Resource):
         db.session.commit()
         return apuesta_schema.dump(nueva_apuesta)
 
-    @jwt_required()
+    ##@jwt_required()
     def get(self):
         return [apuesta_schema.dump(ca) for ca in Apuesta.query.all()]
 
 class VistaApuesta(Resource):
 
-    @jwt_required()
+    #@jwt_required()
     def get(self, id_apuesta):
         return apuesta_schema.dump(Apuesta.query.get_or_404(id_apuesta))
 
-    @jwt_required()
+    #@jwt_required()
     def put(self, id_apuesta):
         apuesta = Apuesta.query.get_or_404(id_apuesta)
         apuesta.valor_apostado = request.json.get("valor_apostado", apuesta.valor_apostado)
@@ -240,33 +240,47 @@ class VistaApuesta(Resource):
         db.session.commit()
         return apuesta_schema.dump(apuesta)
 
-    @jwt_required()
+    #@jwt_required()
     def delete(self, id_apuesta):
         apuesta = Apuesta.query.get_or_404(id_apuesta)
         db.session.delete(apuesta)
         db.session.commit()
         return '', 204
 
-class VistaTerminacionEventoConGanador(Resource):
+class VistaTerminarEventoConGanador(Resource):
 
-    def put(self, id_competidor):
+    def post(self, id_evento_deportivo, id_competidor):
+        eventod = EventoDeportivo.query.get_or_404(id_evento_deportivo)
+        eventod.estado = "False"
         competidor = Competidor.query.get_or_404(id_competidor)
-        competidor.es_ganador = True
-        eventod = EventoDeportivo.query.get_or_404(competidor.id_EventoDeportivo)
-        eventod.status = "False"
-
+    
         for apuesta in eventod.apuestas:
+            valorGanancia = 0
             if apuesta.id_competidor == competidor.id:
-                apuesta.ganancia = apuesta.valor_apostado + (apuesta.valor_apostado/competidor.cuota)
-            else:
-                apuesta.ganancia = 0
+                valorGanancia = self.__calcularGanancia(apuesta.valor_apostado, competidor.cuota)
+            apuesta.valor_ganancia = valorGanancia
+            self.__acreditarDineroCuentaApostador(apuesta.id_apostador, valorGanancia)
+            
+            #TODO: dinero que va a la cuenta de la casa, pero se necsita un suario casa para poder asignar el dinero
+            #self.__acreditarDineroCuentaApostador(1, apuesta.valor_apostado)
+
 
         db.session.commit()
-        return competidor_schema.dump(competidor)
+        return eventod_schema.dump(eventod) 
+    
+    def __calcularGanancia(self, valor_apostado, cuota_competidor):
+        cuota = cuota_competidor / (1 - cuota_competidor)
+        return valor_apostado + ((valor_apostado) / (cuota))
+
+    def __acreditarDineroCuentaApostador(self, id_apostador, valorGanancia):
+        apostador = Usuario.query.get_or_404(id_apostador)
+        apostador.saldo = apostador.saldo + valorGanancia
+        db.session.commit()
+        return usuario_schema.dump(apostador) 
 
 class VistaReporte(Resource):
 
-    @jwt_required()
+    #@jwt_required()
     def get(self, id_eventod):
         EDReporte = EventoDeportivo.query.get_or_404(id_eventod)
         ganancia_casa_final = 0
@@ -280,22 +294,14 @@ class VistaReporte(Resource):
 
 class VistaCompetidores(Resource):
     
-    #@jwt_required()
+    ##@jwt_required()
     def get(self):
         competidores = Competidor.query.all()
         return competidor_schema.dump(competidores, many=True)
 
-class VistaFinalizarEvento(Resource):
-    #@jwt_required
-    def put(self, id_eventod):
-        eventoDeportivo = EventoDeportivo.query.get_or_404(id_eventod)
-        eventoDeportivo.status = 'False'
-        db.session.commit()
-        return eventod_schema.dump(eventoDeportivo)
-
 class VistaEventosDisponibles(Resource):
     
-    #@jwt_required()
+    ##@jwt_required()
     def get(self):
         eventosDeportivos = EventoDeportivo.query.filter(EventoDeportivo.status == 'True').all()
         return eventod_schema.dump(eventosDeportivos, many=True)

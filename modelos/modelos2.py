@@ -23,8 +23,8 @@ class Apuesta(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     valor_apostado = db.Column(SqliteNumeric)
     valor_ganancia = db.Column(SqliteNumeric, default=0)
-    nombre_apostador = db.Column(db.String(128))
     fecha_apuesta = db.Column(db.String(128))
+    id_apostador = db.Column(db.Integer, db.ForeignKey('usuario.id'))
     id_competidor = db.Column(db.Integer, db.ForeignKey('competidor.id'))
     id_EventoDeportivo = db.Column(db.Integer, db.ForeignKey('evento_deportivo.id'))
 
@@ -37,7 +37,7 @@ class Competidor(db.Model):
     puntaje = db.Column(db.String(100))
     cuota = db.Column(db.String(100))
     es_ganador = db.Column(db.Boolean, default=False)
-    estatus = db.Column(db.String(128), default='True')
+    estado = db.Column(db.String(128), default='True')
     id_EventoDeportivo = db.Column(db.Integer, db.ForeignKey('evento_deportivo.id'))
 
 class Usuario(db.Model):
@@ -60,7 +60,7 @@ class EventoDeportivo(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     nombre_EventoDeportivo = db.Column(db.String(128))
-    status = db.Column(db.String(128))
+    estado = db.Column(db.String(128))
     usuario = db.Column(db.Integer, db.ForeignKey("usuario.id"))
     tipo = db.Column(db.String(128))
     competidores = db.relationship('Competidor', cascade='all, delete, delete-orphan')
@@ -82,7 +82,6 @@ class EventoCarrera(EventoDeportivo):
         'with_polymorphic': '*'
     }
     
-
 class EventoMarcador(EventoDeportivo):
     __tablename__ = 'evento_marcador'
 
