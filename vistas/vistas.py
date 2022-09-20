@@ -178,7 +178,6 @@ class VistaEventoTipo(Resource):
         else:
             return "carrera", 200
 
-
 class VistaEventos(Resource):
 
     @jwt_required()
@@ -291,7 +290,7 @@ class FinalizarEvento(Resource):
     #@jwt_required
     def put(self, id_eventod):
         eventoDeportivo = EventoDeportivo.query.get_or_404(id_eventod)
-        eventoDeportivo.estado = 'False'
+        eventoDeportivo.status = 'False'
         db.session.commit()
         return eventod_schema.dump(eventoDeportivo)
 

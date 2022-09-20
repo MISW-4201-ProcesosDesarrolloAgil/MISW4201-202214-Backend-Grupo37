@@ -13,7 +13,7 @@ class SqliteNumeric(types.TypeDecorator):
         return str(value)     
     def process_result_value(self, value, dialect):         
         return D(value)  
-#https://exchangetuts.com/how-should-i-handle-decimal-in-sqlalchemy-sqlite-1639747150040783
+
 
 db = SQLAlchemy()
 
@@ -44,7 +44,6 @@ class Usuario(db.Model):
     __tablename__ = 'usuario'
 
     id = db.Column(db.Integer, primary_key=True)
-    #nombre = db.Column(db.String(50))
     usuario = db.Column(db.String(50))
     email = db.Column(db.String(50))
     contrasena = db.Column(db.String(50))
@@ -75,7 +74,6 @@ class EventoDeportivo(db.Model):
 class EventoCarrera(EventoDeportivo):
     __tablename__ = 'evento_carrera'
 
-    #id = db.Column(db.Integer, primary_key=True)
     id = db.Column(db.Integer, db.ForeignKey('evento_deportivo.id'), primary_key=True)
     id_competidor_ganador = db.Column(db.Integer, db.ForeignKey('competidor.id'))
 
@@ -88,7 +86,6 @@ class EventoCarrera(EventoDeportivo):
 class EventoMarcador(EventoDeportivo):
     __tablename__ = 'evento_marcador'
 
-    #id = db.Column(db.Integer, primary_key=True)
     id = db.Column(db.Integer, db.ForeignKey('evento_deportivo.id'), primary_key=True)
     id_marcador = db.Column(db.Integer, db.ForeignKey("marcador.id"))
 
