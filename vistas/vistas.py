@@ -259,11 +259,10 @@ class VistaTerminarEventoConGanador(Resource):
             if apuesta.id_competidor == competidor.id:
                 valorGanancia = self.__calcularGanancia(apuesta.valor_apostado, competidor.cuota)
             apuesta.valor_ganancia = valorGanancia
-            self.__acreditarDineroCuentaApostador(apuesta.id_apostador, valorGanancia)
+            self.__acreditarDineroCuentaApostador(apuesta.id_apostador,  apuesta.valor_ganancia)
             
             #TODO: dinero que va a la cuenta de la casa, pero se necsita un suario casa para poder asignar el dinero
-            #self.__acreditarDineroCuentaApostador(1, apuesta.valor_apostado)
-
+            self.__acreditarDineroCuentaApostador(eventod.usuario, apuesta.valor_apostado)
 
         db.session.commit()
         return eventod_schema.dump(eventod) 
@@ -305,4 +304,3 @@ class VistaEventosDisponibles(Resource):
     def get(self):
         eventosDeportivos = EventoDeportivo.query.filter(EventoDeportivo.status == 'True').all()
         return eventod_schema.dump(eventosDeportivos, many=True)
-
