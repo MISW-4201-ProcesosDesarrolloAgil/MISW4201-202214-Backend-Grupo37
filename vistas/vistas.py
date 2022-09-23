@@ -215,7 +215,8 @@ class VistaApuestas(Resource):
     def post(self):
         nueva_apuesta = Apuesta(valor_apostado=request.json["valor_apostado"],
                                 nombre_apostador=request.json["nombre_apostador"],
-                                id_competidor=request.json["id_competidor"], id_carrera=request.json["id_carrera"])
+                                id_competidor=request.json["id_competidor"], 
+                                id_EventoDeportivo=request.json["id_EventoDeportivo"])
         db.session.add(nueva_apuesta)
         db.session.commit()
         return apuesta_schema.dump(nueva_apuesta)
@@ -303,4 +304,11 @@ class VistaEventosDisponibles(Resource):
     ##@jwt_required()
     def get(self):
         eventosDeportivos = EventoDeportivo.query.filter(EventoDeportivo.status == 'True').all()
+        return eventod_schema.dump(eventosDeportivos, many=True)
+
+class VistaTodosEventos(Resource):
+    
+    @jwt_required()
+    def get(self):
+        eventosDeportivos = EventoDeportivo.query.all()
         return eventod_schema.dump(eventosDeportivos, many=True)
