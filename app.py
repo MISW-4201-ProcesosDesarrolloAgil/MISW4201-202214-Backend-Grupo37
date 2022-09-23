@@ -5,7 +5,7 @@ from flask_restful import Api
 
 from modelos.modelos2 import db
 from vistas import VistaApuestas, VistaApuesta, VistaLogIn, VistaEventosUsuario, VistaEventos, VistaTerminacionEventoConGanador, VistaReporte, \
-    VistaSignInApostador, VistaSignInAdmin, VistaUsuarios, VistaCompetidores, FinalizarEvento, VistaEventosDisponibles, VistaEventoTipo
+    VistaSignInApostador, VistaSignInAdmin, VistaUsuarios, VistaCompetidores, VistaFinalizarEvento, VistaEventosDisponibles, VistaEventoTipo, VistaTodosEventos
 #, VistaCarrerasUsuario, VistaCarrera, VistaTerminacionCarrera, VistaReporte
 
 app = Flask(__name__)
@@ -32,6 +32,7 @@ api.add_resource(VistaEventos, '/eventod/<int:id_eventod>')
 api.add_resource(VistaFinalizarEvento, '/eventod/finalizareventodeportivo/<int:id_eventod>')
 api.add_resource(VistaReporte, '/eventod/<int:id_eventod>/reporte')
 api.add_resource(VistaEventosDisponibles, '/eventod/eventosdisponibles')
+api.add_resource(VistaTodosEventos, '/eventosd')
 api.add_resource(VistaTerminacionEventoConGanador, '/eventod/terminarevento/<int:id_competidor>/terminacion')
 api.add_resource(VistaApuestas, '/apuestas')
 api.add_resource(VistaApuesta, '/apuesta/<int:id_apuesta>')
