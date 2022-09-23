@@ -39,7 +39,7 @@ api.add_resource(VistaApuestas, '/apuestas')
 api.add_resource(VistaApuesta, '/apuesta/<int:id_apuesta>')
 api.add_resource(VistaCompetidores, '/competidores')
 
-#api.add_resource(VistaEventosDisponibles, '/eventod')
+
 
 jwt = JWTManager(app)
 
