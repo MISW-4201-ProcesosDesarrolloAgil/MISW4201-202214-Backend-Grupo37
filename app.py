@@ -33,12 +33,8 @@ api.add_resource(VistaUsuarios, '/usuarios')
 api.add_resource(VistaEventos, '/eventod/<int:id_eventod>')
 api.add_resource(VistaReporte, '/eventod/<int:id_eventod>/reporte')
 api.add_resource(VistaEventosDisponibles, '/eventod/eventosdisponibles')
-<<<<<<< HEAD
 api.add_resource(VistaTerminarEventoConGanador, '/eventod/terminarevento')
-=======
 api.add_resource(VistaTodosEventos, '/eventosd')
-api.add_resource(VistaTerminacionEventoConGanador, '/eventod/terminarevento/<int:id_competidor>/terminacion')
->>>>>>> Desarrollo
 api.add_resource(VistaApuestas, '/apuestas')
 api.add_resource(VistaApuesta, '/apuesta/<int:id_apuesta>')
 api.add_resource(VistaCompetidores, '/competidores')
