@@ -257,8 +257,8 @@ class VistaApuesta(Resource):
 
 class VistaTerminarEventoConGanador(Resource):
 
-    def post(self, id_evento_deportivo, id_competidor):
-        eventod = EventoDeportivo.query.get_or_404(id_evento_deportivo)
+    def post(self, id_eventod, id_competidor):
+        eventod = EventoDeportivo.query.get_or_404(id_eventod)
         eventod.estado = "False"
         competidor = Competidor.query.get_or_404(id_competidor)
     
