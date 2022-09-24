@@ -6,7 +6,8 @@ from flask_restful import Api
 from modelos.modelos2 import db
 
 from vistas import VistaApuestas, VistaApuesta, VistaLogIn, VistaEventosUsuario, VistaEventos, VistaReporte, \
-    VistaSignInApostador, VistaSignInAdmin, VistaUsuarios, VistaCompetidores, VistaEventosDisponibles, VistaEventoTipo, VistaTerminarEventoConGanador, VistaTodosEventos
+    VistaSignInApostador, VistaSignInAdmin, VistaUsuarios, VistaCompetidores, VistaEventosDisponibles, \
+    VistaEventoTipo, VistaTerminarEventoConGanador, VistaTodosEventos, VistaUsuario, VistaAddSaldo
 
 
 
@@ -37,6 +38,6 @@ api.add_resource(VistaTodosEventos, '/eventosd')
 api.add_resource(VistaApuestas, '/apuestas/<int:id_apostador>')
 api.add_resource(VistaApuesta, '/apuesta/<int:id_apuesta>')
 api.add_resource(VistaCompetidores, '/competidores')
-
-
+api.add_resource(VistaUsuario, '/usuarios/<int:id_usuario>/')
+api.add_resource(VistaAddSaldo, '/usuarios/<int:id_usuario>/addsaldo')
 jwt = JWTManager(app)

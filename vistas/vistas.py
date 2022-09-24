@@ -27,6 +27,23 @@ class VistaUsuarios(Resource):
         usuarios = Usuario.query.all()
         return usuario_schema.dump(usuarios, many=True)
 
+class VistaUsuario(Resource):
+    
+    def get(self, id_usuario):
+        usuario = Usuario.query.get_or_404(id_usuario)
+        return usuario_schema.dump(usuario)
+
+class VistaAddSaldo(Resource):
+    
+    def put(self, id_usuario):
+        usuario = Usuario.query.get_or_404(id_usuario)
+        saldo_usuario = float(usuario.saldo)
+        saldo_a_sumar = float(request.json['saldo'])
+        saldo_total = saldo_usuario + saldo_a_sumar
+        usuario.saldo = str(saldo_total)
+        db.session.commit()
+        return usuario_schema.dump(usuario)
+
 class VistaSignInAdmin(Resource):
 
     def post(self):
@@ -164,7 +181,6 @@ class VistaEventosUsuario(Resource):
     def get(self, id_usuario):
         usuario = Usuario.query.get_or_404(id_usuario)
         return [eventod_schema.dump(eventod) for eventod in usuario.EventoDeportivos]
-
 class VistaEventoTipo(Resource):
     #@jwt_required()
     def get(self, id_eventod):
@@ -231,7 +247,7 @@ class VistaApuestas(Resource):
 
     ##@jwt_required()
     def get(self, id_apostador):
-        return [apuesta_schema.dump(ca) for ca in Apuesta.query.all()]
+        return [apuesta_schema.dump(ca) for ca in Apuesta.query.filter(Apuesta.id_apostador == id_apostador).all()]
 
 class VistaApuesta(Resource):
 
@@ -314,15 +330,15 @@ class VistaEventosDisponibles(Resource):
         if eventosDeportivos is not None:
             return eventod_schema.dump(eventosDeportivos, many=True)
         else:
-             return {'status':'404', 'description': 'Eventos not found'} 
+           return 'Eventos not found' , 404
 
 class VistaTodosEventos(Resource):
     
-   #@jwt_required()
+    #@jwt_required()
     def get(self):
         eventosDeportivos = EventoDeportivo.query.all()
         
         if len(eventosDeportivos) > 0 :
             return eventod_schema.dump(eventosDeportivos, many=True)
         else:
-             return 'Eventos not found' , 404
+            return 'Eventos not found' , 404
