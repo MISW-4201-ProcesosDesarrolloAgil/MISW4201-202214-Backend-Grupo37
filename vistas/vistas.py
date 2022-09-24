@@ -217,7 +217,7 @@ class VistaApuestas(Resource):
         saldo_apostador = float(apostador.saldo)
         valorApostado = float(request.json["valor_apostado"])
         if(saldo_apostador < valorApostado):
-            return 'Saldo insuficiente', 204
+            return 'Saldo insuficiente', 404
 
         nueva_apuesta = Apuesta(valor_apostado=request.json["valor_apostado"],
                                 id_competidor=request.json["id_competidor"], 
