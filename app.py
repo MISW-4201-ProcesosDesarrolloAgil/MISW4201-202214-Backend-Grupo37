@@ -6,9 +6,9 @@ from flask_restful import Api
 from modelos.modelos2 import db
 
 from vistas import VistaApuestas, VistaApuesta, VistaLogIn, VistaEventosUsuario, VistaEventos, VistaReporte, \
-    VistaSignInApostador, VistaSignInAdmin, VistaUsuarios, VistaCompetidores, VistaEventosDisponibles, VistaEventoTipo, VistaTerminarEventoConGanador
+    VistaSignInApostador, VistaSignInAdmin, VistaUsuarios, VistaCompetidores, VistaEventosDisponibles, VistaEventoTipo, VistaTerminarEventoConGanador, VistaTodosEventos
 
-#, VistaCarrerasUsuario, VistaCarrera, VistaTerminacionCarrera, VistaReporte
+
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///eporra.db'
@@ -18,7 +18,6 @@ app.config['PROPAGATE_EXCEPTIONS'] = True
 
 app_context = app.app_context()
 app_context.push()
-
 db.init_app(app)
 db.create_all()
 
@@ -35,11 +34,9 @@ api.add_resource(VistaReporte, '/eventod/<int:id_eventod>/reporte')
 api.add_resource(VistaEventosDisponibles, '/eventod/eventosdisponibles')
 api.add_resource(VistaTerminarEventoConGanador, '/eventod/terminarevento')
 api.add_resource(VistaTodosEventos, '/eventosd')
-api.add_resource(VistaApuestas, '/apuestas')
+api.add_resource(VistaApuestas, '/apuestas/<int:id_apostador>')
 api.add_resource(VistaApuesta, '/apuesta/<int:id_apuesta>')
 api.add_resource(VistaCompetidores, '/competidores')
 
 
-
 jwt = JWTManager(app)
-

@@ -106,7 +106,7 @@ class VistaEventosUsuario(Resource):
                     nombre_EventoDeportivo=request.json["nombre"],
                     competidores=[],
                     apuestas=[],
-                    status="True",
+                    estado="True",
                     tipo="carrera",
                     usuario=id_usuario
                 )
@@ -115,7 +115,7 @@ class VistaEventosUsuario(Resource):
                     nombre_EventoDeportivo=request.json["nombre"],
                     competidores=[],
                     apuestas=[],
-                    status="True",
+                    estado="True",
                     tipo="marcador",
                     usuario=id_usuario
                 )
@@ -129,7 +129,7 @@ class VistaEventosUsuario(Resource):
                     competidor = Competidor(nombre_competidor=item["competidor"],
                                         probabilidad=item["probabilidad"],
                                         cuota=cuota,
-                                        estatus=True,
+                                        estado='True',
                                         id_EventoDeportivo=evento.id)
                     #print('{} {} {}'.format(item["competidor"], prob, cuota))
                     evento.competidores.append(competidor)
@@ -212,17 +212,25 @@ class VistaEventos(Resource):
 class VistaApuestas(Resource):
 
     ##@jwt_required()
-    def post(self):
+    def post(self, id_apostador):
+        apostador = Usuario.query.get_or_404(id_apostador)
+        saldo_apostador = float(apostador.saldo)
+        valorApostado = float(request.json["valor_apostado"])
+        if(saldo_apostador < valorApostado):
+            return 'Saldo insuficiente', 204
+
         nueva_apuesta = Apuesta(valor_apostado=request.json["valor_apostado"],
-                                nombre_apostador=request.json["nombre_apostador"],
                                 id_competidor=request.json["id_competidor"], 
+                                id_apostador = id_apostador,
                                 id_EventoDeportivo=request.json["id_EventoDeportivo"])
+
+        apostador.saldo = str(saldo_apostador - valorApostado)
         db.session.add(nueva_apuesta)
         db.session.commit()
         return apuesta_schema.dump(nueva_apuesta)
 
     ##@jwt_required()
-    def get(self):
+    def get(self, id_apostador):
         return [apuesta_schema.dump(ca) for ca in Apuesta.query.all()]
 
 class VistaApuesta(Resource):
@@ -235,7 +243,6 @@ class VistaApuesta(Resource):
     def put(self, id_apuesta):
         apuesta = Apuesta.query.get_or_404(id_apuesta)
         apuesta.valor_apostado = request.json.get("valor_apostado", apuesta.valor_apostado)
-        apuesta.nombre_apostador = request.json.get("nombre_apostador", apuesta.nombre_apostador)
         apuesta.id_competidor = request.json.get("id_competidor", apuesta.id_competidor)
         apuesta.id_carrera = request.json.get("id_carrera", apuesta.id_carrera)
         db.session.commit()
@@ -274,7 +281,7 @@ class VistaTerminarEventoConGanador(Resource):
 
     def __acreditarDineroCuentaApostador(self, id_apostador, valorGanancia):
         apostador = Usuario.query.get_or_404(id_apostador)
-        apostador.saldo = apostador.saldo + valorGanancia
+        apostador.saldo = str(float(apostador.saldo) + valorGanancia)
         db.session.commit()
         return usuario_schema.dump(apostador) 
 
@@ -303,12 +310,19 @@ class VistaEventosDisponibles(Resource):
     
     ##@jwt_required()
     def get(self):
-        eventosDeportivos = EventoDeportivo.query.filter(EventoDeportivo.status == 'True').all()
-        return eventod_schema.dump(eventosDeportivos, many=True)
+        eventosDeportivos = EventoDeportivo.query.filter(EventoDeportivo.estado == 'True').all()
+        if eventosDeportivos is not None:
+            return eventod_schema.dump(eventosDeportivos, many=True)
+        else:
+             return {'status':'404', 'description': 'Eventos not found'} 
 
 class VistaTodosEventos(Resource):
     
-    @jwt_required()
+   #@jwt_required()
     def get(self):
         eventosDeportivos = EventoDeportivo.query.all()
-        return eventod_schema.dump(eventosDeportivos, many=True)
+        
+        if len(eventosDeportivos) > 0 :
+            return eventod_schema.dump(eventosDeportivos, many=True)
+        else:
+             return 'Eventos not found' , 404
