@@ -3,7 +3,7 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
 
-from modelos.modelos2 import db
+from modelos.modelos import db
 
 from vistas import VistaApuestas, VistaApuesta, VistaLogIn, VistaEventosUsuario, VistaEventos, VistaReporte, \
     VistaSignInApostador, VistaSignInAdmin, VistaUsuarios, VistaCompetidores, VistaEventosDisponibles, \

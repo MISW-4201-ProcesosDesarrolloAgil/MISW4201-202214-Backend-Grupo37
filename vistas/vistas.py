@@ -5,10 +5,8 @@ from flask_jwt_extended import jwt_required, create_access_token
 from flask_restful import Resource
 from sqlalchemy.exc import IntegrityError
 
-from modelos.modelos2 import db, Apuesta, ApuestaSchema, Usuario, UsuarioSchema, CompetidorSchema, Competidor, ReporteSchema, \
+from modelos.modelos import db, Apuesta, ApuestaSchema, Usuario, UsuarioSchema, CompetidorSchema, Competidor, ReporteSchema, \
 EventoDeportivo, EventoDeportivoSchema, EventoCarrera, EventoMarcador, Marcador, EventoCarreraSchema, EventoMarcadorSchema, MarcadorSchema    
-
-
 
 apuesta_schema = ApuestaSchema()
 eventod_schema = EventoDeportivoSchema()
@@ -18,8 +16,6 @@ reporte_schema = ReporteSchema()
 evento_carrera_schema = EventoCarreraSchema()
 evento_marcador_schema = EventoMarcadorSchema()
 marcador_schema = MarcadorSchema()
-
-
 
 class VistaUsuarios(Resource):
     #@jwt_required
@@ -305,7 +301,6 @@ class VistaTerminarEventoConGanador(Resource):
         apostador.saldo = nuevo_saldo
         db.session.commit()
         return usuario_schema.dump(apostador) 
-
 
 #codigo muerto nadie lo usa
 class VistaReporte(Resource):

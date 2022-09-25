@@ -17,19 +17,9 @@ class TestUsuario(TestCase):
             "contrasena": self.data_factory.word()
         }
 
-        ''''solicitud_nuevo_usuario = self.client.post("/signin",
-                                                   data=json.dumps(nuevo_usuario),
-                                                   headers={'Content-Type': 'application/json'})
-
-        respuesta_al_crear_usuario = json.loads(solicitud_nuevo_usuario.get_data())
-
-        self.token = respuesta_al_crear_usuario["token"]
-        self.usuario_code = respuesta_al_crear_usuario["id"]'''
-
     def test_GetAllUsuarios(self):
         endpoint_carreras = "/usuarios"
         solicitud_all_Users = json.loads(self.client.get(endpoint_carreras).get_data())
-        #self.assertTrue(len(solicitud_all_Users) > 0)
         self.assertIsNotNone(solicitud_all_Users)
 
     def test_SignInAdmin(self):
@@ -48,11 +38,9 @@ class TestUsuario(TestCase):
         solicitud_Sing_Admin = self.client.post(endpoint_carreras,
                             data= json.dumps(nuevo_usuario_admin),
                             headers={'Content-Type': 'application/json'}).get_data().decode("utf-8")
-       
         self.assertTrue(str.__contains__(solicitud_Sing_Admin, "usuario admin creado exitosamente"))
 
     def test_SignInApostador(self):
-
         nuevo_usuario_Apostador = {
             "usuario": self.data_factory.name(),
             "u_email":  self.data_factory.email(),
@@ -68,7 +56,6 @@ class TestUsuario(TestCase):
         solicitud_Sing_Apostador =  self.client.post(endpoint_carreras,
                                     data= json.dumps(nuevo_usuario_Apostador),
                                     headers={'Content-Type': 'application/json'}).get_data().decode("utf-8")
-       
         self.assertTrue(str.__contains__(solicitud_Sing_Apostador, "usuario apostador creado exitosamente"))
     
     def test_LogInSuccessful(self):
@@ -80,7 +67,6 @@ class TestUsuario(TestCase):
         solicitud_LogIn =  self.client.post(endpoint_login,
                             data= json.dumps(usuario_LogIn),
                             headers={'Content-Type': 'application/json'}).get_data().decode("utf-8")
-    
         self.assertTrue(str.__contains__(solicitud_LogIn, "Inicio de sesi"))
 
     def test_LogInNotSuccessful(self):
@@ -92,23 +78,9 @@ class TestUsuario(TestCase):
         solicitud_LogIn =  self.client.post(endpoint_login,
                             data= json.dumps(usuario_LogIn),
                             headers={'Content-Type': 'application/json'}).get_data().decode("utf-8")
-    
         self.assertFalse(str.__contains__(solicitud_LogIn, "Inicio de sesi"))
     
     def test_GetAllCompetidores(self):
         endpoint_competidores = "/competidores"
         solicitud_all_Competidores = json.loads(self.client.get(endpoint_competidores).get_data())
-        #self.assertTrue(len(solicitud_all_Competidores) > 0)
         self.assertIsNotNone(solicitud_all_Competidores)
-    
-    ''' def test_FinalizarEvento(self):
-        
-        endpoint_finalizarEvento = "/eventod/finalizareventodeportivo/{}".format(str(1))
-        solicitud_finalizarEvento = json.loads(self.client.put(endpoint_finalizarEvento,
-                                    headers={'Content-Type': 'application/json'}).get_data())
-        #self.assertTrue(len(solicitud_all_Competidores) > 0)
-        #print (solicitud_finalizarEvento)
-        #self.assertTrue(solicitud_finalizarEvento["nombre_EventoDeportivo"] == "futbol") 
-
-    '''
-       
