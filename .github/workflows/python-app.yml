@@ -41,9 +41,12 @@ jobs:
   merge-branch:
     name: merge-branch
     needs: build
+    
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2    
+      - name: Checkout de repositorio
+        uses: actions/checkout@v2
       
       - name: Set Git config
       run: |
