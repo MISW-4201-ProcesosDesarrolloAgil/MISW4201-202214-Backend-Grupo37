@@ -38,19 +38,17 @@ jobs:
       run: |
         pytest
   
-  automerge:
+  merge-branch:
     permissions: read-all
     name: merge-branch
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout de repositorio
-        uses: actions/checkout@v2
+      - uses: actions/checkout@master
 
       - name: Merge Desarrollo -> release
         uses: devmasx/merge-branch@master
         with:
-          type: now
           label_name: 'merged in release'
-          target_branch: release
+          target_branch: 'release'
           github_token: ${{ github.token }}
