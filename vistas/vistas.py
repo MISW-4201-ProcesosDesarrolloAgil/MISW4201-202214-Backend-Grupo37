@@ -286,18 +286,23 @@ class VistaTerminarEventoConGanador(Resource):
             self.__acreditarDineroCuentaApostador(apuesta.id_apostador,  apuesta.valor_ganancia)
             
             #TODO: dinero que va a la cuenta de la casa, pero se necsita un suario casa para poder asignar el dinero
-            self.__acreditarDineroCuentaApostador(eventod.usuario, apuesta.valor_apostado)
+            #self.__acreditarDineroCuentaApostador(eventod.usuario, apuesta.valor_apostado)
 
         db.session.commit()
         return eventod_schema.dump(eventod) 
     
     def __calcularGanancia(self, valor_apostado, cuota_competidor):
+        cuota_competidor = float(cuota_competidor)
+        valor_apostado = float(valor_apostado)
         cuota = cuota_competidor / (1 - cuota_competidor)
-        return valor_apostado + ((valor_apostado) / (cuota))
+        ganancia = valor_apostado + ((valor_apostado) / (cuota))
+        return ganancia
 
     def __acreditarDineroCuentaApostador(self, id_apostador, valorGanancia):
         apostador = Usuario.query.get_or_404(id_apostador)
-        apostador.saldo = str(float(apostador.saldo) + valorGanancia)
+        nuevo_saldo = str(float(apostador.saldo) + float(valorGanancia))
+        print('ganancia: ' +str(valorGanancia) +' Saldo: ' + apostador.saldo + " nuevo saldo: " + nuevo_saldo )
+        apostador.saldo = nuevo_saldo
         db.session.commit()
         return usuario_schema.dump(apostador) 
 
