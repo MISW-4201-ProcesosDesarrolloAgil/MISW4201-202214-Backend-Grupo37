@@ -44,14 +44,13 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: checkout master branch
-        uses: actions/checkout@master
+      - name: Checkout de repositorio
+        uses: actions/checkout@v2
 
       - name: Merge Desarrollo -> release
-        uses: devmasx/merge-branch@v1.3.1
+        uses: devmasx/merge-branch@master
         with:
           type: now
           label_name: 'merged in release'
-          from_branch: Desarrollo
           target_branch: release
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ github.token }}
