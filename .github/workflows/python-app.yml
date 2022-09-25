@@ -9,8 +9,6 @@ on:
   pull_request:
     branches: [ "Desarrollo" ]
 
-permissions:
-  contents: read
 
 jobs:
   build:
@@ -38,8 +36,7 @@ jobs:
       run: |
         pytest
   
-  merge-branch:
-    permissions: read-all
+  automerge:
     name: merge-branch
     needs: build
     runs-on: ubuntu-latest
@@ -51,6 +48,5 @@ jobs:
         uses: devmasx/merge-branch@master
         with:
           type: now
-          label_name: 'merged in release'
           target_branch: release
           github_token: ${{ github.token }}
