@@ -110,10 +110,5 @@ class TestUsuario(TestCase):
         #print (solicitud_finalizarEvento)
         #self.assertTrue(solicitud_finalizarEvento["nombre_EventoDeportivo"] == "futbol") 
 
-    def test_EventosDisponibles(self):
-        endpoint_eventosDisponibles = "/eventod"
-        solicitud_eventosDisponibles = json.loads(self.client.get(endpoint_eventosDisponibles,
-                                                  data = '',
-                                                  headers={'Content-Type': 'application/json'}).get_data())
-        print(solicitud_eventosDisponibles)
-        #self.assertTrue(len(solicitud_eventosDisponibles)> 0)'''
+    '''
+       

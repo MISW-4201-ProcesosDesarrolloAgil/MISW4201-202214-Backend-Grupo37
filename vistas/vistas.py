@@ -306,6 +306,8 @@ class VistaTerminarEventoConGanador(Resource):
         db.session.commit()
         return usuario_schema.dump(apostador) 
 
+
+#codigo muerto nadie lo usa
 class VistaReporte(Resource):
 
     #@jwt_required()
@@ -337,6 +339,7 @@ class VistaEventosDisponibles(Resource):
         else:
            return 'Eventos not found' , 404
 
+#codigo muerto nadie lo usa
 class VistaTodosEventos(Resource):
     
     #@jwt_required()
